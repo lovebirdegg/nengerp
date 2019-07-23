@@ -1,0 +1,5 @@
+project/migrations
+purchase/migrations
+nengerp/__pycache__
+project/__pycache__
+purchase/__pycache__
