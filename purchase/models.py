@@ -6,8 +6,8 @@ from project.models import BaseModel,Project
 
 class Supplier(BaseModel):
     name = models.CharField('供应商名称', max_length=32, blank=True)
-    contact = models.CharField('联系人', max_length=32, blank=True)
-    phone = models.CharField('联系方式', max_length=32, blank=True)
+    contact = models.CharField('联系人', max_length=32, blank=True,null=True)
+    phone = models.CharField('联系方式', max_length=32, blank=True,null=True)
     class Meta:
         verbose_name = '供应商信息'
         verbose_name_plural = '供应商信息'
@@ -15,14 +15,15 @@ class Supplier(BaseModel):
     def __str__(self):
         return self.name
 class Contract(BaseModel):
-    code = models.CharField('合同编号',max_length=32, blank=True)
-    projectCode = models.ForeignKey(Project,verbose_name='项目名称',on_delete=models.CASCADE,blank=True)
-    signDate = models.DateField('签约日期', default=timezone.now)
-    contractAmount = models.FloatField('合同金额',blank=True,default=0)
-    contractContent = models.TextField('合同内容',blank=True)
-    numstr = models.CharField('数量',max_length=32, blank=True)
-    supplier = models.ForeignKey(Supplier,'供应商',blank=True)
-    address = models.CharField('用货地点',max_length=32, blank=True)
+    code = models.CharField('合同编号',max_length=32, blank=True,null=True)
+    projectCode = models.ForeignKey(Project,verbose_name='项目名称',on_delete=models.CASCADE,blank=True,null=True)
+    signDate = models.DateField('签约日期', default=timezone.now,blank=True,null=True)
+    contractAmount = models.FloatField('合同金额',blank=True,default=0,null=True)
+    contractContent = models.TextField('合同内容',blank=True,null=True)
+    numstr = models.CharField('数量',max_length=32, blank=True,null=True)
+    supplier = models.ForeignKey(Supplier,verbose_name='供应商',blank=True,null=True,on_delete=models.CASCADE)
+    address = models.CharField('用货地点',max_length=32, blank=True,null=True)
+    invoice = models.CharField('发票',max_length=32, blank=True,null=True) 
     remark = models.CharField('备注',max_length=32, blank=True,null=True)
     class Meta:
         verbose_name = '采购合同'
@@ -41,6 +42,7 @@ class Payment(BaseModel):
     paymentName = models.IntegerField(choices=PAY_TYPE, verbose_name="付款阶段", help_text="付款阶段",default=1)
     paymentDate = models.DateField('付款日期', blank=True,null=True)
     rpaymentMoney = models.FloatField('付款金额',blank=True,default=0)
+    paymentNo = models.CharField('号数',max_length=32, blank=True,null=True)
     remark = models.CharField('备注',max_length=32, blank=True,null=True)
 
     class Meta:
