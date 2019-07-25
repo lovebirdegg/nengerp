@@ -39,7 +39,7 @@ class Payment(BaseModel):
         (4, "第四次付款"),
     )
     contract = models.ForeignKey(Contract,verbose_name='合同',on_delete=models.CASCADE,blank=True)
-    paymentName = models.IntegerField(choices=PAY_TYPE, verbose_name="付款阶段", help_text="付款阶段",default=1)
+    paymentName = models.IntegerField(choices=PAY_TYPE, verbose_name="付款阶段", help_text="付款阶段")
     paymentDate = models.DateField('付款日期', blank=True,null=True)
     rpaymentMoney = models.FloatField('付款金额',blank=True,default=0)
     paymentNo = models.CharField('号数',max_length=32, blank=True,null=True)

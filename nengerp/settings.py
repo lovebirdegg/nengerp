@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 'suit',
+    'jet.dashboard',
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -120,9 +123,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 from django.contrib import admin
 admin.site.site_title='采购管理系统'
 admin.site.site_header='采购管理系统'
 admin.site.index_title='采购管理系统' #站点管理那四个字
+
+JET_SIDE_MENU_COMPACT = True
+JET_DEFAULT_THEME = 'light-gray' #light-gray
