@@ -65,6 +65,7 @@ class Project(BaseModel):
     salePerson = models.CharField('销售负责人',max_length=32, blank=True,null=True)
     projectManager = models.CharField('项目负责人',max_length=32, blank=True,null=True)
     remark = models.CharField('备注',max_length=32, blank=True,null=True)
+    # purchases = models.ManyToManyField(to=Contract, verbose_name="采购", blank=True)
     class Meta:
         verbose_name = '项目合同'
         verbose_name_plural = '项目合同'

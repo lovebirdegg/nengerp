@@ -50,4 +50,4 @@ class Payment(BaseModel):
         verbose_name_plural = '付款记录'
 
     def __str__(self):
-        return str(self.paymentName)
+        return self.contract.code+'---'+str(self.paymentName)+'---'+ str(self.rpaymentMoney)

@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo;
+        <a>采购统计</a>
+
+        {% block crumbs %}
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+{% block content %}
+<div>
+    <label><h2>采购统计</h2> </label>
+    </br>
+    <table class="table" table-layout="fixed" width="100%">
+        <thead>
+            <tr>
+                <th>供应商</th>
+                <th> 合同额 </th>
+                <th>已付款 </th>
+                <th>欠款 </th>
+            </tr>
+        </thead>
+        {% for class1 in data %}
+        <tbody>
+            <tr>
+                <th> {{class1.supplier}}</th>
+                <th> {{class1.contrant_total}}</th>
+                <th> {{class1.pay_total}}</th>
+                <th> {{class1.debt}}</th>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

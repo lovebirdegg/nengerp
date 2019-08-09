@@ -15,9 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+# import object_tools
+from drugsys import views
+
 
 urlpatterns = [
+    # path('admin/drugsys/data', views.data),
     path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
     path('admin/', admin.site.urls),
+    # path('grappelli/', include('grappelli.urls')), # grappelli URLS
+    # path('object-tools/', object_tools.tools.urls)
 ]

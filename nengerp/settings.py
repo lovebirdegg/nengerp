@@ -32,8 +32,12 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # 'suit',
+    # 'grappelli',
+    'purchase',
+    # 'purchase.apps.SuitConfig',
     'jet.dashboard',
     'jet',
+    # 'django-object-tools',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +45,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'project',
-    'purchase'
+    'drugsys',
+    # 'jet_django',
+    # 'django_object_actions',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
@@ -126,9 +133,60 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 from django.contrib import admin
-admin.site.site_title='采购管理系统'
-admin.site.site_header='采购管理系统'
-admin.site.index_title='采购管理系统' #站点管理那四个字
+admin.site.site_title='管理系统'
+admin.site.site_header='管理系统'
+admin.site.index_title='管理系统' #站点管理那四个字
 
 JET_SIDE_MENU_COMPACT = True
 JET_DEFAULT_THEME = 'light-gray' #light-gray
+JET_THEMES = [
+    {
+        'theme': 'default', # theme folder name
+        'color': '#47bac1', # color of the theme's button in user menu
+        'title': 'Default' # theme title
+    },
+    {
+        'theme': 'green',
+        'color': '#44b78b',
+        'title': 'Green'
+    },
+    {
+        'theme': 'light-green',
+        'color': '#2faa60',
+        'title': 'Light Green'
+    },
+    {
+        'theme': 'light-violet',
+        'color': '#a464c4',
+        'title': 'Light Violet'
+    },
+    {
+        'theme': 'light-blue',
+        'color': '#5EADDE',
+        'title': 'Light Blue'
+    },
+    {
+        'theme': 'light-gray',
+        'color': '#222',
+        'title': 'Light Gray'
+    }
+]
+# JET_SIDE_MENU_ITEMS = [  # A list of application or custom item dicts
+#     {'label': '权限管理', 'items': [
+#         {'name': 'auth.user', 'permissions': ['auth.user']},
+#         {'name': 'auth.group', 'permissions': ['auth.user']},
+
+#     ]},
+#     {'label': '项目管理',  'app_label': 'project','items': [
+#         {'name': 'project.custom', 'permissions': ['auth.user']},
+#         {'name': 'project.project', 'permissions': ['auth.user']},
+#     ]},
+#      {'label': '采购管理',  'app_label': 'purchase','items': [
+#         {'name': 'supplier', 'permissions': ['auth.user']},
+#         {'name': 'contract', 'permissions': ['auth.user']},
+#         {'name': 'payment', 'permissions': ['auth.user']},
+#     ]},
+#     {'label': '统计分析', 'app_label': 'drugsys', 'items': [
+#         {'label': '采购统计', 'url': '/admin/project/project/data_view/', 'url_blank': False, 'permissions': ['auth.user']},
+#     ]},
+# ]
