@@ -16,6 +16,7 @@ class Supplier(BaseModel):
         return self.name
 class Contract(BaseModel):
     code = models.CharField('合同编号',max_length=32, blank=True,null=True)
+    payCode = models.CharField('采购申请单',max_length=32, blank=True,null=True)
     projectCode = models.ForeignKey(Project,verbose_name='项目名称',on_delete=models.CASCADE,blank=True,null=True)
     signDate = models.DateField('签约日期', default=timezone.now,blank=True,null=True)
     contractAmount = models.FloatField('合同金额',blank=True,default=0,null=True)

@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.db.models import Avg, Max, Min, Count,Sum
 from django.http import StreamingHttpResponse
 from django.shortcuts import render,HttpResponse,redirect
+from django.contrib.admin.views.main import ChangeList
+
 import xlwt
 import django_excel as excel
 
@@ -35,6 +37,13 @@ class BaseAdmin(admin.ModelAdmin):
 class PaymentInline(CompactInline):
     model = Payment
     exclude =  ('createTime','updateTime','deletedTime','createdBy','updatedBy','isActive')
+
+class ContractChangeList(ChangeList):
+
+    def get_results(self, *args, **kwargs):
+        super(ContractChangeList, self).get_results(*args, **kwargs)
+        q = self.queryset.aggregate(tomato_sum=Sum('contractAmount'))
+        self.total = q['tomato_sum']
 class ContractAdmin(BaseAdmin):
     change_list_template = "purchase/change_list.html"
 
@@ -42,7 +51,9 @@ class ContractAdmin(BaseAdmin):
     list_display = ('id','code','projectCode','contractAmount','get_payment_total','get_payment_left','contractContent', 'supplier','address','invoice',)
     raw_id_fields=('projectCode','supplier')
     actions = ["export_excel",]
-    list_filter = ('signDate',)
+    list_filter = ('signDate','createTime',)
+
+    # contractAmount.short_description = 'hahah'
 
     search_fields = ('supplier__name','projectCode__name','code',)
 
@@ -59,8 +70,11 @@ class ContractAdmin(BaseAdmin):
             return 0
     def export_excel(self,request,queryset):
         # data_excel =Contract.objects.all()
+        # print(request.GET['q'])
+        # print(queryset)
+        qs = self.get_changelist_instance(request).get_queryset(request)
         column_names = ["code",]
-        return excel.make_response_from_query_sets(queryset,column_names, "xlsx",status = 200 ,sheet_name='测试',file_name='测试文件')
+        return excel.make_response_from_query_sets(qs,column_names, "xlsx",status = 200 ,sheet_name='测试',file_name='测试文件')
 
     get_payment_total.short_description = '已付款'
     get_payment_left.short_description = '剩余'
@@ -68,7 +82,7 @@ class ContractAdmin(BaseAdmin):
 
     def export_excel_all(self, request):
         response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment;filename=data.xls' #导出文件名
+        response['Content-Disposition'] = 'attachment;filename=dataw.xls' #导出文件名
         wb = xlwt.Workbook(encoding='utf8')
         sheet = wb.add_sheet('order-sheet')
         # 设置文件头的样式,可以根据自己的需求进行更改
@@ -103,7 +117,8 @@ class ContractAdmin(BaseAdmin):
 
 
         data_row = 1
-        contract_all =Contract.objects.all()
+        changelist = self.get_changelist_instance(request)
+        contract_all =changelist.get_queryset(request)
         payment_amount = 0
         payment_left = 0
         contract_amount = 0
@@ -134,6 +149,17 @@ class ContractAdmin(BaseAdmin):
         output.seek(0)
         response.write(output.getvalue())
         return response
+    def get_changelist(self, request):
+        return ContractChangeList
+
+    # def changelist_view(self, request, extra_context=None):
+    #     q=Contract.objects.filter(request.GET['q']).aggregate(contract_sum=Sum('contractAmount'))
+    #     total = q['contract_sum']
+    #     my_context = {
+    #         'total': total,
+    #     }
+    #     return super(ContractAdmin, self).changelist_view(request,
+    #         extra_context=my_context)
 
 class PaymentAdmin(BaseAdmin):
     list_display = ('contract','rpaymentMoney','paymentDate',)

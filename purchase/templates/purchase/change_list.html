@@ -1,10 +1,10 @@
 {% extends 'admin/change_list.html' %}
 
 {% load i18n admin_static %}
-
+{% load dic_extras %}
 {% block object-tools-items %}
-<li>
-    <a href="/admin/purchase/contract/export_excel_all/">导出所有</a>
+<li style='float: left;'>{{total}}
+    <a href='/admin/purchase/contract/export_excel_all/?{{preserved_filters|get:"_changelist_filters"}}''>导出所有</a>
 </li>
 {{ block.super }}
 
