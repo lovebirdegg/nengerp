@@ -1,11 +1,19 @@
 {% extends 'admin/change_list.html' %}
 
 {% load i18n admin_static %}
+{% load dic_extras %}
 
 {% block object-tools-items %}
-<li>
-    <a href="/admin/purchase/supplier/export_excel_all/">导出所有</a>
+<li style='float: left;'>
+    <a href='/admin/purchase/supplier/export_excel_all/?{{preserved_filters|get:"_changelist_filters"}}'>导出所有</a>
 </li>
+{{ block.super }}
+
+{% endblock %}
+{% block result_list %}
+合同额合计: {{ cl.total }}<br>
+付款合计: {{ cl.payment_total }}<br>
+欠款合计: {{ cl.left_total }}<br>
 {{ block.super }}
 
 {% endblock %}

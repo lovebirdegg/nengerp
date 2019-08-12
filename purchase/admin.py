@@ -42,8 +42,18 @@ class ContractChangeList(ChangeList):
 
     def get_results(self, *args, **kwargs):
         super(ContractChangeList, self).get_results(*args, **kwargs)
-        q = self.queryset.aggregate(tomato_sum=Sum('contractAmount'))
-        self.total = q['tomato_sum']
+        # q = self.queryset.aggregate(tomato_sum=Sum('contractAmount'))
+        payment_amount = 0
+        payment_left = 0
+        contract_amount = 0
+        for contract in self.queryset:
+            payment_amount = payment_amount + self.model_admin.get_payment_total(contract)
+            payment_left = payment_left + self.model_admin.get_payment_left(contract)
+            if isinstance(contract.contractAmount,float):
+                contract_amount = contract_amount + contract.contractAmount
+        self.total = contract_amount
+        self.payment_total = payment_amount
+        self.left_total = payment_left
 class ContractAdmin(BaseAdmin):
     change_list_template = "purchase/change_list.html"
 
@@ -167,6 +177,21 @@ class PaymentAdmin(BaseAdmin):
     # date_hierarchy = 'paymentDate'
     # list_filter = ()
     list_filter = (('paymentDate',DateRangeFilter),)
+class SupplierChangeList(ChangeList):
+
+    def get_results(self, *args, **kwargs):
+        super(SupplierChangeList, self).get_results(*args, **kwargs)
+        # q = self.queryset.aggregate(tomato_sum=Sum('contractAmount'))
+        payment_amount = 0
+        payment_left = 0
+        contract_amount = 0
+        for supplier in self.queryset:
+            payment_amount = payment_amount + self.model_admin.get_pay_total(supplier)
+            payment_left = payment_left + self.model_admin.get_debt(supplier)
+            contract_amount = contract_amount + self.model_admin.get_contract_total(supplier)
+        self.total = contract_amount
+        self.payment_total = payment_amount
+        self.left_total = payment_left
 class SupplierAdmin(BaseAdmin):
     change_list_template = "purchase/change_list_s.html"
     search_fields = ('name',)
@@ -194,7 +219,8 @@ class SupplierAdmin(BaseAdmin):
     get_contract_total.short_description = '合同总额'
     get_pay_total.short_description = '付款总额'
     get_debt.short_description = '欠款'
-
+    def get_changelist(self, request):
+        return SupplierChangeList
     def export_excel_all(self, request):
         response = HttpResponse(content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment;filename=data.xls' #导出文件名
@@ -228,7 +254,9 @@ class SupplierAdmin(BaseAdmin):
 
 
         data_row = 1
-        supplier_all =Supplier.objects.all()
+        # supplier_all =Supplier.objects.all()
+        changelist = self.get_changelist_instance(request)
+        supplier_all =changelist.get_queryset(request)
         payment_amount = 0
         payment_left = 0
         contract_amount = 0
