@@ -22,7 +22,7 @@ class Contract(BaseModel):
     contractAmount = models.FloatField('合同金额',blank=True,default=0,null=True)
     contractContent = models.TextField('合同内容',blank=True,null=True)
     numstr = models.CharField('数量',max_length=32, blank=True,null=True)
-    supplier = models.ForeignKey(Supplier,verbose_name='供应商',blank=True,null=True,on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Supplier,verbose_name='供应商',blank=True,null=True,on_delete=models.CASCADE,related_name='contract_supplier')
     address = models.CharField('用货地点',max_length=32, blank=True,null=True)
     invoice = models.CharField('发票',max_length=32, blank=True,null=True) 
     remark = models.CharField('备注',max_length=32, blank=True,null=True)
@@ -38,9 +38,12 @@ class Payment(BaseModel):
         (2, "第二次付款"),
         (3, "第三次付款"),
         (4, "第四次付款"),
+        (5, "第五次付款"),
+        (6, "第六次付款"),
+        (7, "第七次付款"),
     )
-    contract = models.ForeignKey(Contract,verbose_name='合同',on_delete=models.CASCADE,blank=True)
-    paymentName = models.IntegerField(choices=PAY_TYPE, verbose_name="付款阶段", help_text="付款阶段")
+    contract = models.ForeignKey(Contract,verbose_name='合同',on_delete=models.CASCADE,blank=True,related_name='contract_payment')
+    paymentName = models.IntegerField(choices=PAY_TYPE, verbose_name="付款阶段", help_text="付款阶段",null=True,blank=True)
     paymentDate = models.DateField('付款日期', blank=True,null=True)
     rpaymentMoney = models.FloatField('付款金额',blank=True,default=0)
     paymentNo = models.CharField('号数',max_length=32, blank=True,null=True)

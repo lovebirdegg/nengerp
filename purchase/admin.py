@@ -3,9 +3,11 @@ from django.db.models import Avg, Max, Min, Count,Sum
 from django.http import StreamingHttpResponse
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.admin.views.main import ChangeList
+from django.db.models import Q
 
 import xlwt
 import django_excel as excel
+import datetime
 
 from .models import *
 from jet.admin import CompactInline
@@ -25,6 +27,7 @@ from io import BytesIO
 
 class BaseAdmin(admin.ModelAdmin):
     exclude = ('createTime','updateTime','','deletedTime','createdBy','updatedBy','isActive')
+    list_per_page = 50
     def export_excel_all(self, request):
         pass
     def get_urls(self):
@@ -58,17 +61,38 @@ class ContractAdmin(BaseAdmin):
     change_list_template = "purchase/change_list.html"
 
     inlines = [PaymentInline,]
-    list_display = ('id','code','projectCode','contractAmount','get_payment_total','get_payment_left','contractContent', 'supplier','address','invoice',)
+    list_display = ('id','code', 'supplier','projectCode','contractAmount','get_payment_total','get_payment_left','contractContent','address','invoice',)
     raw_id_fields=('projectCode','supplier')
     actions = ["export_excel",]
-    list_filter = ('signDate','createTime',)
+    # list_filter = (('signDate',DateRangeFilter),('createTime',DateRangeFilter),'contract_payment__createTime')
+    list_filter = (('signDate',DateRangeFilter),('contract_payment__paymentDate',DateRangeFilter))
 
     # contractAmount.short_description = 'hahah'
 
-    search_fields = ('supplier__name','projectCode__name','code',)
+    search_fields = ('supplier__name','projectCode__name','projectCode__code','code',)
+    def get_queryset(self, request):
+        qs = super(ContractAdmin, self).get_queryset(request)
+        self.request = request
+        return qs
 
     def get_payment_total(self,contract):
-        total = Payment.objects.filter(contract=contract).aggregate(total_pay=Sum('rpaymentMoney'))
+        # paymentDate__range__gte = self.request.GET.get('contract_payment__paymentDate__range__gte')
+        paymentDate__range__lte = self.request.GET.get('contract_payment__paymentDate__range__lte')
+        con = Q()#总条件
+        contractQ = Q()
+        rangeDateQ= Q()#付款时间
+        paymentDate_gte = '1970-01-01'
+        paymentDate_lte = '9999-01-01'
+        contractQ.children.append(('contract',contract))
+        # if paymentDate__range__gte != None and paymentDate__range__gte != '':
+        #     paymentDate_gte = datetime.datetime.strptime(paymentDate__range__gte, "%Y/%m/%d")
+        if paymentDate__range__lte != None and paymentDate__range__lte != '':
+            paymentDate_lte = datetime.datetime.strptime(paymentDate__range__lte, "%Y/%m/%d")
+        rangeDateQ.children.append(('paymentDate__range',(paymentDate_gte, paymentDate_lte)))
+        con.add(contractQ, 'AND')
+        con.add(rangeDateQ, 'AND')
+
+        total = Payment.objects.filter(con).aggregate(total_pay=Sum('rpaymentMoney'))
         if total["total_pay"] != None:
             return total["total_pay"]
         else:
@@ -95,6 +119,15 @@ class ContractAdmin(BaseAdmin):
         response['Content-Disposition'] = 'attachment;filename=dataw.xls' #导出文件名
         wb = xlwt.Workbook(encoding='utf8')
         sheet = wb.add_sheet('order-sheet')
+        sheet.col(0).width = 256*20
+        sheet.col(1).width = 256*20
+        sheet.col(2).width = 256*20
+        sheet.col(3).width = 256*20
+        sheet.col(4).width = 256*20
+        sheet.col(5).width = 256*20
+        sheet.col(6).width = 256*20
+        sheet.col(7).width = 256*20
+        sheet.col(8).width = 256*20
         # 设置文件头的样式,可以根据自己的需求进行更改
         style_heading = xlwt.easyxf("""
         font:
@@ -170,13 +203,22 @@ class ContractAdmin(BaseAdmin):
     #     }
     #     return super(ContractAdmin, self).changelist_view(request,
     #         extra_context=my_context)
-
+class PaymentChangeList(ChangeList):
+    def get_results(self, *args, **kwargs):
+        super(PaymentChangeList, self).get_results(*args, **kwargs)
+        q = self.queryset.aggregate(total_pay=Sum('rpaymentMoney'))
+        if q["total_pay"] != None:
+            self.payment_total = q["total_pay"]
 class PaymentAdmin(BaseAdmin):
+    change_list_template = "purchase/change_list_s.html"
+
     list_display = ('contract','rpaymentMoney','paymentDate',)
     search_fields = ('contract__code','contract__supplier__name',)
     # date_hierarchy = 'paymentDate'
     # list_filter = ()
-    list_filter = (('paymentDate',DateRangeFilter),)
+    list_filter = (('paymentDate',DateRangeFilter),('createTime',DateRangeFilter))
+    def get_changelist(self, request):
+        return PaymentChangeList
 class SupplierChangeList(ChangeList):
 
     def get_results(self, *args, **kwargs):
@@ -197,8 +239,14 @@ class SupplierAdmin(BaseAdmin):
     search_fields = ('name',)
 
     list_display = ('id','name','get_contract_total','get_pay_total','get_debt')
+    list_filter = (('contract_supplier__contract_payment__paymentDate',DateRangeFilter),)
+
     # contract_total = 0
     # pay_total = 0
+    def get_queryset(self, request):
+        qs = super(SupplierAdmin, self).get_queryset(request)
+        self.request = request
+        return qs
     def get_contract_total(self,supplier):
         contract_list = Contract.objects.filter(supplier = supplier)
         contract_total = 0
@@ -207,10 +255,26 @@ class SupplierAdmin(BaseAdmin):
                 contract_total = contract_total + float(contract.contractAmount)
         return contract_total
     def get_pay_total(self,supplier):
+        paymentDate_gte = '1970-01-01'
+        paymentDate_lte = '9999-01-01'
+        # paymentDate__range__gte = self.request.GET.get('contract_supplier__contract_payment__paymentDate__range__gte')
+        paymentDate__range__lte = self.request.GET.get('contract_supplier__contract_payment__paymentDate__range__lte')
+        # if paymentDate__range__gte != None and paymentDate__range__gte != '':
+        #     paymentDate_gte = datetime.datetime.strptime(paymentDate__range__gte, "%Y/%m/%d")
+        if paymentDate__range__lte != None and paymentDate__range__lte != '':
+            paymentDate_lte = datetime.datetime.strptime(paymentDate__range__lte, "%Y/%m/%d")
         contract_list = Contract.objects.filter(supplier = supplier)
         pay_total = 0
         for contract in contract_list:
-            total = Payment.objects.filter(contract=contract).aggregate(total_pay=Sum('rpaymentMoney'))
+            ###缺少付款时间条件
+            con = Q()#总条件
+            contractQ = Q()
+            rangeDateQ= Q()#付款时间
+            contractQ.children.append(('contract',contract))
+            rangeDateQ.children.append(('paymentDate__range',(paymentDate_gte, paymentDate_lte)))
+            con.add(contractQ, 'AND')
+            con.add(rangeDateQ, 'AND')
+            total = Payment.objects.filter(con).aggregate(total_pay=Sum('rpaymentMoney'))
             if total["total_pay"] != None:
                 pay_total = pay_total + total["total_pay"]
         return pay_total

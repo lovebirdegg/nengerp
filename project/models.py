@@ -71,7 +71,7 @@ class Project(BaseModel):
         verbose_name_plural = '项目合同'
 
     def __str__(self):
-        return self.name
+        return self.name+'('+self.code+')'
 class ReturnMoney(BaseModel):
     returnName = models.CharField('阶段',max_length=1000, blank=True,null=True)
     returnRate = models.FloatField('回款率',blank=True,default=0)

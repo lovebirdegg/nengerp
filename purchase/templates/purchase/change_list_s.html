@@ -5,15 +5,25 @@
 
 {% block object-tools-items %}
 <li style='float: left;'>
-    <a href='/admin/purchase/supplier/export_excel_all/?{{preserved_filters|get:"_changelist_filters"}}'>导出所有</a>
+    <a href='/admin/purchase/supplier/export_excel_all/?{{preserved_filters|get:"_changelist_filters"}}'>导出结果</a>
 </li>
 {{ block.super }}
 
 {% endblock %}
 {% block result_list %}
-合同额合计: {{ cl.total }}<br>
-付款合计: {{ cl.payment_total }}<br>
-欠款合计: {{ cl.left_total }}<br>
+<p>
+        {% if not cl.total == None %}
+        <span style='color:black'>合同额合计: {{ cl.total }}</span>&nbsp|&nbsp
+        {% endif %}
+        {% if not cl.payment_total == None %}
+        <span style='color:green'>付款合计: {{ cl.payment_total }}</span>&nbsp|&nbsp
+        {% endif %}
+    
+        {% if not cl.left_total == None %}
+        <span style='color:brown'>欠款合计: {{ cl.left_total }}</span>
+        {% endif %}
+    
+    </p>
 {{ block.super }}
 
 {% endblock %}
