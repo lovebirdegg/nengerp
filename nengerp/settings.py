@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from django.contrib import admin
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,24 +32,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'suit',
-    # 'grappelli',
     'purchase',
+    'project',
     # 'purchase.apps.SuitConfig',
-    'jet.dashboard',
+    'jet.dashboard', # 'suit' 'grappelli',
     'jet',
-    # 'django-object-tools',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'project',
-    'drugsys',
-    # 'jet_django',
     # 'django_object_actions',
-    'rangefilter',
+    # 'rangefilter',
 ]
 
 MIDDLEWARE = [
@@ -132,10 +128,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-from django.contrib import admin
-admin.site.site_title='管理系统'
-admin.site.site_header='管理系统'
-admin.site.index_title='管理系统' #站点管理那四个字
 
 JET_SIDE_MENU_COMPACT = True
 JET_DEFAULT_THEME = 'light-gray' #light-gray
@@ -190,3 +182,4 @@ JET_THEMES = [
 #         {'label': '采购统计', 'url': '/admin/project/project/data_view/', 'url_blank': False, 'permissions': ['auth.user']},
 #     ]},
 # ]
+# JET_INDEX_DASHBOARD = 'purchase.dashboard.CustomIndexDashboard'

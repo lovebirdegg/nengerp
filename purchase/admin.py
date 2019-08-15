@@ -12,7 +12,9 @@ import datetime
 from .models import *
 from jet.admin import CompactInline
 from django_object_actions import DjangoObjectActions
-from rangefilter.filter import DateRangeFilter, DateTimeRangeFilter
+# from rangefilter.filter import DateRangeFilter, DateTimeRangeFilter
+from jet.filters import DateRangeFilter
+
 
 from django.urls import path,include
 

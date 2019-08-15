@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 # import object_tools
-from drugsys import views
+# from drugsys import views
 
 
 urlpatterns = [
@@ -27,3 +27,6 @@ urlpatterns = [
     # path('grappelli/', include('grappelli.urls')), # grappelli URLS
     # path('object-tools/', object_tools.tools.urls)
 ]
+admin.site.site_title='管理系统'
+admin.site.site_header='管理系统'
+admin.site.index_title='管理系统' #站点管理那四个字
